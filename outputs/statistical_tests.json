@@ -1,0 +1,15 @@
+{
+  "smart_baseline_accuracy": 0.948051948051948,
+  "vif_full": {
+    "const": 27.89525126148158,
+    "Rasmussen": 6.571292769907138,
+    "SurveyUSA": 8.159525370888215,
+    "PropR": 19.20079516316601,
+    "DiffCount": 8.004411030172399
+  },
+  "vif_two_variable": {
+    "const": 1.1182165679374096,
+    "SurveyUSA": 1.606590382409515,
+    "DiffCount": 1.606590382409515
+  }
+}

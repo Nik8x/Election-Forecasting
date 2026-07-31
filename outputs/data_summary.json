@@ -1,0 +1,11 @@
+{
+  "n_rows": 145,
+  "years": [
+    2004,
+    2008,
+    2012
+  ],
+  "n_missing_rasmussen": 46,
+  "n_missing_surveyusa": 71,
+  "republican_share": 0.5103448275862069
+}

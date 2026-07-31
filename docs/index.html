@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Election Forecasting from State Polling Data</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg:            #fcfcfb;
+  --surface:       #ffffff;
+  --surface-2:     #f4f3f0;
+  --border:        #e4e2dc;
+  --text-primary:  #14140f;
+  --text-secondary:#52514e;
+  --text-muted:    #7a7972;
+  --series-1:      #2a78d6;
+  --series-2:      #eb6834;
+  --series-3:      #1baf7a;
+  --series-4:      #eda100;
+  --good:          #0ca30c;
+  --critical:      #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg:            #131311;
+    --surface:       #1a1a19;
+    --surface-2:     #212120;
+    --border:        #34332f;
+    --text-primary:  #f5f4f0;
+    --text-secondary:#c3c2b7;
+    --text-muted:    #8f8e86;
+    --series-1:      #3987e5;
+    --series-2:      #d95926;
+    --series-3:      #199e70;
+    --series-4:      #c98500;
+    --good:          #3ecf3e;
+    --critical:      #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:            #131311;
+  --surface:       #1a1a19;
+  --surface-2:     #212120;
+  --border:        #34332f;
+  --text-primary:  #f5f4f0;
+  --text-secondary:#c3c2b7;
+  --text-muted:    #8f8e86;
+  --series-1:      #3987e5;
+  --series-2:      #d95926;
+  --series-3:      #199e70;
+  --series-4:      #c98500;
+  --good:          #3ecf3e;
+  --critical:      #e66767;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.55;
+}
+main { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+header.hero { margin-bottom: 2.5rem; }
+h1 { font-size: 1.9rem; margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+.lede { color: var(--text-secondary); font-size: 1.05rem; max-width: 68ch; }
+.pill-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.pill {
+  font-size: 0.78rem; color: var(--text-secondary); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.25rem 0.7rem;
+}
+section { margin: 3rem 0; }
+h2 { font-size: 1.3rem; margin: 0 0 0.3rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+p { color: var(--text-secondary); }
+p.section-intro { margin-top: 0.8rem; }
+figure { margin: 1.2rem 0; }
+figure img { max-width: 100%; display: block; border-radius: 8px; border: 1px solid var(--border); }
+figcaption { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+.stat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; margin-top: 1.2rem;
+}
+.stat { background: var(--surface); padding: 1rem; }
+.stat .num { font-size: 1.5rem; font-weight: 600; }
+.stat .label { font-size: 0.78rem; color: var(--text-muted); }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; margin: 1rem 0; }
+th, td { text-align: left; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.02em; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+code { background: var(--surface-2); border-radius: 4px; padding: 0.1rem 0.35rem; font-size: 0.9em; }
+.callout {
+  background: var(--surface-2); border-left: 3px solid var(--series-1);
+  border-radius: 6px; padding: 0.9rem 1.1rem; font-size: 0.92rem;
+  color: var(--text-secondary); margin: 1.2rem 0;
+}
+.callout.warn { border-left-color: var(--series-2); }
+ul.findings { padding-left: 1.2rem; }
+ul.findings li { margin-bottom: 0.8rem; color: var(--text-secondary); }
+ul.findings strong { color: var(--text-primary); }
+footer { margin-top: 3.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); }
+a { color: var(--series-1); }
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero">
+  <h1>Election Forecasting from State Polling Data</h1>
+  <p class="lede">
+    145 state-year polling records across the 2004, 2008, and 2012 US
+    presidential elections. Trained on 2004 and 2008, evaluated on a
+    genuinely held-out 2012, the one thing the original notebook already
+    got right, with a formal check on the multicollinearity it flagged
+    and an unsupervised look at whether poll numbers alone sort states
+    the way the election actually did.
+  </p>
+  <div class="pill-row">
+    <span class="pill">145 state-years</span>
+    <span class="pill">out-of-sample by year</span>
+    <span class="pill">iterative imputation</span>
+    <span class="pill">logistic regression / random forest</span>
+  </div>
+</header>
+
+<section id="eda">
+  <h2>The data</h2>
+  <figure>
+    <img src="assets/poll_correlation.png" alt="Correlation matrix of the four poll-based predictors">
+    <figcaption>All four poll measures move together closely (0.51 to 0.91), they're all reading the same underlying signal from different angles.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/diffcount_by_outcome.png" alt="Boxplot of poll count margin by actual election outcome">
+  </figure>
+</section>
+
+<section id="testing">
+  <h2>A strong baseline, and real multicollinearity</h2>
+  <div class="stat-grid">
+    <div class="stat"><div class="num">94.8%</div><div class="label">"smart baseline" accuracy (just the sign of one poll)</div></div>
+    <div class="stat"><div class="num">19.2</div><div class="label">VIF for PropR in the 4-variable model</div></div>
+    <div class="stat"><div class="num">1.6</div><div class="label">VIF for both variables in the 2-variable model</div></div>
+  </div>
+  <p class="section-intro">
+    A single pollster's sign alone gets 94.8% of training states right,
+    a genuinely strong baseline given how one-sided most states are.
+    Using all four poll measures together in one model runs into severe
+    multicollinearity (VIF up to 19.2), dropping to just SurveyUSA and
+    DiffCount, the two-variable combination the original notebook
+    landed on, brings every VIF back under 2.
+  </p>
+</section>
+
+<section id="model">
+  <h2>A genuinely out-of-sample test</h2>
+  <table>
+    <thead><tr><th>Model</th><th class="num">2012 test accuracy</th><th class="num">AUC</th></tr></thead>
+    <tbody>
+      <tr><td>Smart baseline (sign of Rasmussen)</td><td class="num">91.1%</td><td class="num">n/a</td></tr>
+      <tr><td>Logistic regression</td><td class="num">97.8%</td><td class="num">0.982</td></tr>
+      <tr><td>Random forest</td><td class="num">97.8%</td><td class="num">1.000</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    Both models beat the baseline on the 2012 test states, trained only
+    on 2004 and 2008, never shown a single 2012 row during training.
+    44 of 45 states correct for logistic regression. A small test set to
+    draw strong conclusions from given how few elections exist, but an
+    honest number, not one computed partly on data the model had
+    already seen.
+  </div>
+</section>
+
+<section id="clustering">
+  <h2>Unsupervised: do poll numbers alone sort states correctly?</h2>
+  <p class="section-intro">
+    Clustering all 145 rows by their four poll measures, no outcome
+    label involved, then checking against the real result afterward.
+  </p>
+  <div class="stat-grid">
+    <div class="stat"><div class="num">0.77</div><div class="label">adjusted Rand index vs actual outcome</div></div>
+    <div class="stat"><div class="num">0.57</div><div class="label">KMeans silhouette score</div></div>
+  </div>
+  <figure>
+    <img src="assets/cluster_scatter.png" alt="Scatter plot of states clustered by poll profile">
+  </figure>
+  <p>
+    Strong agreement. Two of the three clusters are entirely Democrat
+    states and one is almost entirely Republican, poll numbers alone
+    sort states into groups that closely track what actually happened,
+    a reassuring sanity check on the polling data itself.
+  </p>
+</section>
+
+<section id="findings">
+  <h2>Key findings</h2>
+  <ul class="findings">
+    <li><strong>The original's train-2004/2008-test-2012 split was
+      already the right call.</strong> This rebuild keeps it and adds
+      a formal comparison against a baseline and a second model.</li>
+    <li><strong>The multicollinearity the original noticed is real and
+      severe</strong> (VIF up to 19.2 with all four poll variables),
+      confirmed with an actual number rather than a narrative
+      judgment call.</li>
+    <li><strong>Both models comfortably beat a strong 91.1% baseline</strong>
+      on genuinely unseen 2012 data, reaching 97.8% accuracy.</li>
+    <li><strong>Unsupervised clustering on poll numbers alone recovers
+      the real outcome closely</strong> (adjusted Rand index 0.77),
+      without ever seeing which party actually won.</li>
+  </ul>
+</section>
+
+<section id="future">
+  <h2>Future work</h2>
+  <ul class="findings">
+    <li>Extend to more election cycles (2016, 2020, 2024) to get a
+      larger, more statistically meaningful out-of-sample test set.</li>
+    <li>Bring in fundamentals-based predictors (incumbency, state
+      partisan lean, economic indicators) alongside the poll numbers,
+      the current model is entirely poll-based.</li>
+    <li>Try a proper hierarchical or Bayesian model that pools
+      information across states rather than treating each state-year
+      as fully independent.</li>
+  </ul>
+</section>
+
+<footer>
+  Full detail, code, and every number above in the
+  <a href="https://github.com/Nik8x/Election-Forecasting">notebooks</a>.
+</footer>
+
+</main>
+</body>
+</html>
