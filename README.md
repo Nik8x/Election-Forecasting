@@ -4,15 +4,13 @@
 
 Predicting which party wins each US state in a presidential election
 from pre-election polling data, 145 state-year records across 2004,
-2008, and 2012. The original R Markdown notebook is kept in `_old/`
-untouched.
+2008, and 2012.
 
-The original notebook already got the important thing right: it trains
-on 2004 and 2008 and evaluates on 2012, a genuine out-of-sample test by
-year rather than a random split. This rebuild keeps that discipline and
-adds what was missing: a formal variance inflation factor on the
-multicollinearity it noticed, a second model for comparison, and an
-unsupervised check on the polling data itself.
+The analysis trains on 2004 and 2008 and evaluates on 2012, a genuine
+out-of-sample test by year rather than a random split. It formalizes
+the multicollinearity among the poll measures with a variance inflation
+factor, compares two models against each other and against a simple
+baseline, and adds an unsupervised check on the polling data itself.
 
 ## Notebooks
 

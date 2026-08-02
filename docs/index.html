@@ -114,10 +114,10 @@ a { color: var(--series-1); }
   <p class="lede">
     145 state-year polling records across the 2004, 2008, and 2012 US
     presidential elections. Trained on 2004 and 2008, evaluated on a
-    genuinely held-out 2012, the one thing the original notebook already
-    got right, with a formal check on the multicollinearity it flagged
-    and an unsupervised look at whether poll numbers alone sort states
-    the way the election actually did.
+    genuinely held-out 2012, with a formal check on the
+    multicollinearity among the poll measures and an unsupervised look
+    at whether poll numbers alone sort states the way the election
+    actually did.
   </p>
   <div class="pill-row">
     <span class="pill">145 state-years</span>
@@ -149,9 +149,9 @@ a { color: var(--series-1); }
     A single pollster's sign alone gets 94.8% of training states right,
     a genuinely strong baseline given how one-sided most states are.
     Using all four poll measures together in one model runs into severe
-    multicollinearity (VIF up to 19.2), dropping to just SurveyUSA and
-    DiffCount, the two-variable combination the original notebook
-    landed on, brings every VIF back under 2.
+    multicollinearity (VIF up to 19.2). Dropping to just SurveyUSA and
+    DiffCount, the two-variable combination used in the model, brings
+    every VIF back under 2.
   </p>
 </section>
 
@@ -199,13 +199,12 @@ a { color: var(--series-1); }
 <section id="findings">
   <h2>Key findings</h2>
   <ul class="findings">
-    <li><strong>The original's train-2004/2008-test-2012 split was
-      already the right call.</strong> This rebuild keeps it and adds
-      a formal comparison against a baseline and a second model.</li>
-    <li><strong>The multicollinearity the original noticed is real and
-      severe</strong> (VIF up to 19.2 with all four poll variables),
-      confirmed with an actual number rather than a narrative
-      judgment call.</li>
+    <li><strong>Training on 2004 and 2008 and evaluating on a genuinely
+      unseen 2012 is the right way to test this.</strong> It's compared
+      here against both a baseline and a second model.</li>
+    <li><strong>The multicollinearity among the four poll variables is
+      real and severe</strong> (VIF up to 19.2), confirmed with an
+      actual number rather than a narrative judgment call.</li>
     <li><strong>Both models comfortably beat a strong 91.1% baseline</strong>
       on genuinely unseen 2012 data, reaching 97.8% accuracy.</li>
     <li><strong>Unsupervised clustering on poll numbers alone recovers
